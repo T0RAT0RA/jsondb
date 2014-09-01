@@ -66,6 +66,19 @@ $app['jsondb.getClassAttributes'] = $app->protect(function ($class) use ($app) {
     return $attributes;
 });
 
+$app['jsondb.getEntitiesFromFile'] = $app->protect(function ($class_name, $file_path) use ($app) {
+    $entities = array();
+
+    $file_data = file_get_contents($file_path);
+    $json_data = json_decode($file_data, true);
+    foreach ($json_data as $data) {
+        $entity = new $class_name($data);
+        $entities[] = $entity;
+    }
+
+    return $entities;
+});
+
 /***********************/
 //Routing
 /***********************/
@@ -76,36 +89,38 @@ $app->get('/', function() use($app) {
 });
 
 $app->get('/{file}/view', function($file) use($app) {
-    $json_data  = array();
+    $entities   = array();
+
+    $class_name = $app['jsondb.config']['database_files'][$file];
 
     if ($file_path = $app['jsondb.getFilePath']($file)) {
-        $file_data = file_get_contents($file_path);
-        $json_data = json_decode($file_data, true);
+        $entities = $app['jsondb.getEntitiesFromFile']($class_name, $file_path);
     }
 
-    $attributes = $app['jsondb.getClassAttributes']($app['jsondb.config']['database_files'][$file]);
+    $attributes = $app['jsondb.getClassAttributes']($class_name);
 
     return $app['twig']->render('file_view.html', array(
         'current_file'  => $file,
         'attributes'    => $attributes,
-        'json_data'     => $json_data,
+        'entities'      => $entities,
     ));
 })->bind('file_view');
 
 $app->get('/{file}/edit', function($file) use($app) {
-    $json_data = array();
+    $entities = array();
+
+    $class_name = $app['jsondb.config']['database_files'][$file];
 
     if ($file_path = $app['jsondb.getFilePath']($file)) {
-        $file_data = file_get_contents($file_path);
-        $json_data = json_decode($file_data, true);
+        $entities = $app['jsondb.getEntitiesFromFile']($class_name, $file_path);
     }
 
-    $attributes = $app['jsondb.getClassAttributes']($app['jsondb.config']['database_files'][$file]);
+    $attributes = $app['jsondb.getClassAttributes']($class_name);
 
     return $app['twig']->render('file_edit.html', array(
         'current_file'  => $file,
         'attributes'    => $attributes,
-        'json_data'  => $json_data,
+        'entities'      => $entities,
     ));
 })->bind('file_edit');
 
@@ -122,30 +137,31 @@ $app->get('/{file}/create', function(Request $request, $file) use($app) {
 })->bind('file_create');
 
 $app->post('/{file}/edit', function(Request $request, $file) use($app) {
+    $entities   = array();
+    $class_name = $app['jsondb.config']['database_files'][$file];
     $file_path  = $app['jsondb.getFilePath']($file);
-    $attributes = $app['jsondb.getClassAttributes']($app['jsondb.config']['database_files'][$file]);
+    $attributes = $app['jsondb.getClassAttributes']($class_name);
 
-    $rows = array();
     if (isset($_POST['id'])) {
         foreach ($_POST['id'] as $id) {
-            $row = array();
+            $entity = new $class_name();
+            $data = array();
             foreach ($attributes as $attribute) {
                 if (isset($attribute['type']) && $attribute['type'] == 'boolean') {
-                    $row[$attribute['name']] = (isset($_POST[$attribute['name']][$id]) && $_POST[$attribute['name']][$id])? true : false;
+                    $data[$attribute['name']] = (isset($_POST[$attribute['name']][$id]) && $_POST[$attribute['name']][$id])? true : false;
                 } else {
                     if (isset($_POST[$attribute['name']][$id])) {
                         $value = $_POST[$attribute['name']][$id];
                     } else {
                         $value = null;
                     }
-                    $row[$attribute['name']] = $value;
+                    $data[$attribute['name']] = $value;
                 }
             }
-            $rows[] = $row;
+            $entity->set($data);
+            $entities[] = $entity;
         }
-
-        $new_database = json_encode($rows);
-        file_put_contents($file_path, $new_database, LOCK_EX);
+        file_put_contents($file_path, json_encode($entities), LOCK_EX);
     }
 
     return $app->redirect($app["url_generator"]->generate("file_view", array("file" => $file)));

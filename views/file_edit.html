@@ -17,25 +17,23 @@
                 </tr>
             </thead>
             <tbody>
-                {% for row in json_data %}
+                {% for entity in entities %}
                     <tr>
                         {% for attribute in attributes %}
-                            {% if row[attribute.name] is defined %}
-                                <td class="{{ attribute.name }}">
-                                    {% if loop.first %}
-                                        <input type="hidden" name="id[{{ loop.parent.loop.index }}]" value="{{ loop.parent.loop.index }}"/>
+                            <td class="{{ attribute.name }}">
+                                {% if loop.first %}
+                                    <input type="hidden" name="id[{{ loop.parent.loop.index }}]" value="{{ loop.parent.loop.index }}"/>
+                                {% endif %}
+                                {% if attribute.type is defined %}
+                                    {% if attribute.type == "date"  %}
+                                        <input type="text" name="{{attribute.name}}[{{ loop.parent.loop.index }}]" value="{{ entity.get(attribute.name) }}" size="25"/>
+                                    {% elseif attribute.type == "boolean" %}
+                                        <input type="checkbox" name="{{attribute.name}}[{{ loop.parent.loop.index }}]" value="1" {{ entity.get(attribute.name)? "checked" : "" }}/>
                                     {% endif %}
-                                    {% if attribute.type is defined %}
-                                        {% if attribute.type == "date"  %}
-                                            <input type="text" name="{{attribute.name}}[{{ loop.parent.loop.index }}]" value="{{ row[attribute.name] }}" size="25"/>
-                                        {% elseif attribute.type == "boolean" %}
-                                            <input type="checkbox" name="{{attribute.name}}[{{ loop.parent.loop.index }}]" value="1" {{ row[attribute.name]? "checked" : "" }}/>
-                                        {% endif %}
-                                    {% else %}
-                                        <input type="text" name="{{attribute.name}}[{{ loop.parent.loop.index }}]" value="{{ row[attribute.name] }}"/>
-                                    {% endif %}
-                                </td>
-                            {% endif %}
+                                {% else %}
+                                    <input type="text" name="{{attribute.name}}[{{ loop.parent.loop.index }}]" value="{{ entity.get(attribute.name) }}"/>
+                                {% endif %}
+                            </td>
                         {% endfor %}
                     </tr>
                 {% endfor %}

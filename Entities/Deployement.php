@@ -1,12 +1,12 @@
 <?php
 namespace Entities;
 
-class Deployement {
+class Deployement extends Entity{
 
     /**
      * @JsonDB(type="date")
      */
-    protected $date;
+    public $date;
 
     protected $release_manager;
 
@@ -32,5 +32,4 @@ class Deployement {
 
     protected $file;
 
-    public function __construct() {}
 }
