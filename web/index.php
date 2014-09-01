@@ -133,8 +133,12 @@ $app->post('/{file}/edit', function(Request $request, $file) use($app) {
                 if (isset($attribute['type']) && $attribute['type'] == 'boolean') {
                     $row[$attribute['name']] = (isset($_POST[$attribute['name']][$id]) && $_POST[$attribute['name']][$id])? true : false;
                 } else {
-                    if (!isset($_POST[$attribute['name']][$id])) { continue; }
-                    $row[$attribute['name']] = $_POST[$attribute['name']][$id];
+                    if (isset($_POST[$attribute['name']][$id])) {
+                        $value = $_POST[$attribute['name']][$id];
+                    } else {
+                        $value = null;
+                    }
+                    $row[$attribute['name']] = $value;
                 }
             }
             $rows[] = $row;
@@ -143,6 +147,36 @@ $app->post('/{file}/edit', function(Request $request, $file) use($app) {
         $new_database = json_encode($rows);
         file_put_contents($file_path, $new_database, LOCK_EX);
     }
+
+    return $app->redirect($app["url_generator"]->generate("file_view", array("file" => $file)));
+});
+
+$app->get('/{file}/api/add', function(Request $request, $file) use($app) {
+    $file_path  = $app['jsondb.getFilePath']($file);
+    $attributes = $app['jsondb.getClassAttributes']($app['jsondb.config']['database_files'][$file]);
+
+    if ($file_path) {
+        $file_data = file_get_contents($file_path);
+        $json_data = json_decode($file_data, true);
+    }
+
+    $row = array();
+    foreach ($attributes as $attribute) {
+        if (isset($attribute['type']) && $attribute['type'] == 'boolean') {
+            $row[$attribute['name']] = (isset($_GET[$attribute['name']]) && $_GET[$attribute['name']])? true : false;
+        } else {
+            if (isset($_GET[$attribute['name']])) {
+                $value = $_GET[$attribute['name']];
+            } else {
+                $value = null;
+            }
+            $row[$attribute['name']] = $value;
+        }
+    }
+    $json_data[] = $row;
+
+    $new_database = json_encode($json_data);
+    file_put_contents($file_path, $new_database, LOCK_EX);
 
     return $app->redirect($app["url_generator"]->generate("file_view", array("file" => $file)));
 });

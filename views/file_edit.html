@@ -22,7 +22,7 @@
                         {% for attribute in attributes %}
                             {% if row[attribute.name] is defined %}
                                 <td class="{{ attribute.name }}">
-                                    {% if loop.parent.loop.first %}
+                                    {% if loop.first %}
                                         <input type="hidden" name="id[{{ loop.parent.loop.index }}]" value="{{ loop.parent.loop.index }}"/>
                                     {% endif %}
                                     {% if attribute.type is defined %}
