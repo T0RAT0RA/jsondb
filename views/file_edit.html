@@ -1,0 +1,74 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<div class="container deployements">
+    <form method="POST" action="{{ path('file_edit', {'file': current_file}) }}">
+        <div class="pull-right">
+            <button type="submit" class="btn btn-sm btn-primary">Done</button>
+            <a href="{{ path('file_view', {'file': current_file}) }}" class="btn btn-sm btn-default">Cancel</a>
+        </div>
+
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    {% for attribute in attributes %}
+                        <th class="{{ attribute.name }}">{{ attribute.name }}</th>
+                    {% endfor %}
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in json_data %}
+                    <tr>
+                        {% for attribute in attributes %}
+                            {% if row[attribute.name] is defined %}
+                                <td class="{{ attribute.name }}">
+                                    {% if loop.parent.loop.first %}
+                                        <input type="hidden" name="id[{{ loop.parent.loop.index }}]" value="{{ loop.parent.loop.index }}"/>
+                                    {% endif %}
+                                    {% if attribute.type is defined %}
+                                        {% if attribute.type == "date"  %}
+                                            <input type="text" name="{{attribute.name}}[{{ loop.parent.loop.index }}]" value="{{ row[attribute.name] }}" size="25"/>
+                                        {% elseif attribute.type == "boolean" %}
+                                            <input type="checkbox" name="{{attribute.name}}[{{ loop.parent.loop.index }}]" value="1" {{ row[attribute.name]? "checked" : "" }}/>
+                                        {% endif %}
+                                    {% else %}
+                                        <input type="text" name="{{attribute.name}}[{{ loop.parent.loop.index }}]" value="{{ row[attribute.name] }}"/>
+                                    {% endif %}
+                                </td>
+                            {% endif %}
+                        {% endfor %}
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <div class="pull-right">
+            <button type="submit" class="btn btn-sm btn-primary">Done</button>
+            <a href="{{ path('file_view', {'file': current_file}) }}" class="btn btn-sm btn-default">Cancel</a>
+        </div>
+    </form>
+
+</div><!-- /.container -->
+
+<script type="text/javascript">
+    var checkboxes = document.querySelectorAll("td.env input");
+    for (i in checkboxes) {
+        checkbox = checkboxes[i];
+        checkbox.onclick = function(){
+            this.parentNode.classList.toggle("active");
+            this.parentNode.classList.toggle("success");
+        };
+    }
+    var inputs = document.querySelectorAll("td.trunk input");
+    for (i in inputs) {
+        input = inputs[i];
+        input.onkeyup = function() {
+            if (this.value) {
+                this.parentNode.classList.remove("danger");
+            } else {
+                this.parentNode.classList.add("danger");
+            }
+        };
+    }
+</script>
+{% endblock %}

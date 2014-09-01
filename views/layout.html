@@ -1,0 +1,64 @@
+
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta name="description" content="">
+    <meta name="author" content="">
+
+    <title>Deployements manager</title>
+
+    <!-- Bootstrap core CSS -->
+    <link href="/css/bootstrap.min.css" rel="stylesheet">
+    <style type="text/css">
+        body { padding-top: 100px; padding-bottom: 10px }
+        .container { width: 1260px; }
+        .deployements { font-size: 12px; }
+        .deployements .env { text-align: center;  }
+    </style>
+
+  </head>
+
+  <body>
+
+    <div class="navbar navbar-inverse navbar-fixed-top" role="navigation">
+      <div class="container">
+
+        <div class="navbar-header">
+          <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target=".navbar-collapse">
+            <span class="sr-only">Toggle navigation</span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+            <span class="icon-bar"></span>
+          </button>
+          <a class="navbar-brand" href="/">jsondb</a>
+        </div>
+
+      </div>
+    </div>
+
+    <div class="container">
+        {% set alertTypeAvaillable = [ 'info', 'success', 'warning', 'danger'] %}
+        {% if app.session.flashBag is defined %}
+            {% for alertType in alertTypeAvaillable %}
+                {% for message in app.session.flashBag.get(alertType) %}
+                    <div class="alert alert-{{ alertType }}" >
+                        <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
+                        {{ message|raw }}
+                    </div>
+                {% endfor %}
+            {% endfor %}
+        {% endif %}
+    </div><!-- /.container -->
+
+    <div class="container">
+        {% block content %}{% endblock %}
+    </div><!-- /.container -->
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/2.1.1/jquery.min.js"></script>
+    <script src="/js/bootstrap.min.js"></script>
+
+  </body>
+</html>

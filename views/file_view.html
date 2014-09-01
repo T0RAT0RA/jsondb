@@ -1,0 +1,62 @@
+{% extends "layout.html" %}
+
+{% block content %}
+    <div class="deployements">
+        <div class="pull-right">
+                <a href="{{ path('file_edit', {'file': current_file}) }}" class="btn btn-sm btn-primary">
+                    <span class="glyphicon glyphicon-pencil"></span> Edit
+                </a>
+        </div>
+
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    {% for attribute in attributes %}
+                        <th class="{{ attribute.name }}">{{ attribute.name }}</th>
+                    {% endfor %}
+                    <!--
+                      <th style="width: 130px;">Date</th>
+                      <th style="width: 100px;">RM</th>
+                    -->
+                </tr>
+            </thead>
+            <tbody>
+                {% for row in json_data %}
+                    <tr>
+                        {% for attribute in attributes %}
+                            {% if row[attribute.name] is defined %}
+                                <td class="{{ attribute.name }}">
+                                    {% if attribute.type is defined %}
+                                        {% if attribute.type == "date"  %}
+                                            {{ row[attribute.name]|date("Y-m-d H:i:s") }}
+                                        {% elseif attribute.type == "boolean" %}
+                                            {% if row[attribute.name] %}
+                                                <span class="glyphicon glyphicon-ok"></span>
+                                            {% else %}
+                                                <span class="glyphicon glyphicon-remove"></span>
+                                            {% endif %}
+                                        {% endif %}
+                                    {% else %}
+                                        {{ row[attribute.name] }}
+                                    {% endif %}
+                                </td>
+                            {% endif %}
+                        {% endfor %}
+                        <!--
+                        <td>{{ row.date|date("Y-m-d H:i:s") }}</td>
+                        <td>{{ row.release_manager }}</td>
+                        <td class="{{ row.trunk? "" : "danger" }}">{{ row.trunk }}</td>
+                        <td>{{ row.release_candidate }}</td>
+                        <td>{{ row.release }}</td>
+                        <td>{{ row.commiter }}</td>
+                        <td>{{ row.deployement }}</td>
+                        <td class="env {{ row.staging? "success" : "active" }}">{{ row.staging? "X" : "-" }}</td>
+                        <td class="env {{ row.prod? "success" : "active" }}">{{ row.prod? "X" : "-" }}</td>
+                        <td>{{ row.file }}</td>
+                        -->
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

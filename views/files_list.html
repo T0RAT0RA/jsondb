@@ -1,0 +1,16 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+    {% if database_files %}
+        <ul>
+            {% for file in database_files %}
+                <li>
+                    <a href="/{{ file }}/view">{{ file }}</a>
+                </li>
+            {% endfor %}
+        </ul>
+    {% else %}
+        <div class="alert alert-info">No file confirgured.</div>
+    {% endif %}
+{% endblock %}
