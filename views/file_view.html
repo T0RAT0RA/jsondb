@@ -42,18 +42,6 @@
                                 </td>
                             {% endif %}
                         {% endfor %}
-                        <!--
-                        <td>{{ row.date|date("Y-m-d H:i:s") }}</td>
-                        <td>{{ row.release_manager }}</td>
-                        <td class="{{ row.trunk? "" : "danger" }}">{{ row.trunk }}</td>
-                        <td>{{ row.release_candidate }}</td>
-                        <td>{{ row.release }}</td>
-                        <td>{{ row.commiter }}</td>
-                        <td>{{ row.deployement }}</td>
-                        <td class="env {{ row.staging? "success" : "active" }}">{{ row.staging? "X" : "-" }}</td>
-                        <td class="env {{ row.prod? "success" : "active" }}">{{ row.prod? "X" : "-" }}</td>
-                        <td>{{ row.file }}</td>
-                        -->
                     </tr>
                 {% endfor %}
             </tbody>
