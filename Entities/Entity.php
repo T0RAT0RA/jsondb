@@ -4,8 +4,11 @@ namespace Entities;
 use ReflectionClass;
 use JsonSerializable;
 
-class Entity implements JsonSerializable{
+class Entity implements JsonSerializable {
+    private $attributes;
     public function __construct($array = null) {
+        $this->attributes = $this->getPropertiesAttributes();
+
         if (is_array($array)) {
             $this->set($array, true);
         }
@@ -23,21 +26,41 @@ class Entity implements JsonSerializable{
         return null;
     }
 
-
     public function set($data) {
-        $attributes = $this->getPropertiesAttributes();
+        foreach ($data as $property => $value) {
+            if (!property_exists($this, $property)) { continue; }
+            $property_type = isset($this->attributes[$property]['type'])? $this->attributes[$property]['type'] : null;
 
-        foreach ($data as $key => $value) {
-            if (property_exists($this, $key)) {
-                $property_type = isset($attributes[$key]['type'])? $attributes[$key]['type'] : null;
-
-                if ($property_type == 'boolean') {
-                    $this->{$key} = $value? true : false;
-                } else {
-                    $this->{$key} = $value;
-                }
+            if ($property_type == 'boolean') {
+                $this->{$property} = $value? true : false;
+            } else {
+                $this->{$property} = $value;
             }
         }
+    }
+
+    public function render($property) {
+        if (!property_exists($this, $property)) { return null; }
+
+        //Use custom entity render if exist
+        $custom_render_method = 'render'.ucfirst($property);
+        if (method_exists($this, $custom_render_method)) {
+            return $this->$custom_render_method();
+        }
+
+        //Default renderer
+        $property_type = isset($this->attributes[$property]['type'])? $this->attributes[$property]['type'] : null;
+
+        if ($property_type == 'boolean') {
+            return ($this->{$property})? 'true' : 'false';
+        } else if ($property_type == 'date') {
+            if (strtotime($this->{$property})) {
+                return date('Y-m-d H:i:s', strtotime($this->{$property}));
+            }
+            
+        }
+
+        return $this->{$property};
     }
 
     private function getPropertiesAttributes() {

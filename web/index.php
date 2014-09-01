@@ -21,7 +21,8 @@ $app['jsondb.config'] = array(
     'database_path'     => '../files/',
     'file_extension'    => '.json',
     'database_files'    => array(
-        'deployements' => 'Entities\Deployement'
+        'deployements' => 'Entities\Deployement',
+        'deployements_cinepop' => 'Entities\DeployementCinepop',
     ),
 );
 
@@ -43,6 +44,7 @@ $app['jsondb.getFilePath'] = $app->protect(function ($file) use ($app) {
 
     return $file_path;
 });
+
 $app['jsondb.getClassAttributes'] = $app->protect(function ($class) use ($app) {
     $attributes = array();
 
