@@ -24,7 +24,7 @@
                 {% for entity in entities %}
                     <tr>
                         {% for attribute in attributes %}
-                            <td class="{{ attribute.name }}">
+                            <td class="{{ attribute.name }} {{ entity.renderRowClass(attribute.name) }}">
                                 {{ entity.render(attribute.name)|raw }}
                             </td>
                         {% endfor %}

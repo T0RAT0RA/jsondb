@@ -43,7 +43,9 @@ class Entity implements JsonSerializable {
         if (!property_exists($this, $property)) { return null; }
 
         //Use custom entity render if exist
-        $custom_render_method = 'render'.ucfirst($property);
+        //Transform property_name to PropertyName
+        $property_formated = implode('', array_map("ucfirst", explode('_', strtolower($property))));
+        $custom_render_method = __FUNCTION__.ucfirst($property_formated);
         if (method_exists($this, $custom_render_method)) {
             return $this->$custom_render_method();
         }
@@ -61,6 +63,21 @@ class Entity implements JsonSerializable {
         }
 
         return $this->{$property};
+    }
+
+    public function renderRowClass($property) {
+        if (!property_exists($this, $property)) { return null; }
+
+        //Use custom entity render if exist
+        //Transform property_name to PropertyName
+        $property_formated = implode('', array_map("ucfirst", explode('_', strtolower($property))));
+        $custom_render_method = __FUNCTION__.ucfirst($property_formated);
+
+        if (method_exists($this, $custom_render_method)) {
+            return $this->$custom_render_method();
+        }
+
+        return null;
     }
 
     private function getPropertiesAttributes() {

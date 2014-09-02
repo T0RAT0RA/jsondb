@@ -40,6 +40,22 @@ class Deployement extends Entity{
         return $this->renderBoolean($this->staging);
     }
 
+    public function renderRowClassTrunk () {
+        return ($this->trunk)? '' : 'danger';
+    }
+
+    public function renderRowClassStaging () {
+        return $this->renderRowClassBoolean($this->staging);
+    }
+
+    public function renderRowClassProd () {
+        return $this->renderRowClassBoolean($this->prod);
+    }
+
+    public function renderRowClassBoolean ($value) {
+        return ($value)? 'success' : 'danger';
+    }
+
     protected function renderBoolean ($value) {
         $html = '<div class="text-center">';
         if ($value) {
