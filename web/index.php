@@ -45,27 +45,8 @@ $app['jsondb.getFilePath'] = $app->protect(function ($file) use ($app) {
     return $file_path;
 });
 
-$app['jsondb.getClassAttributes'] = $app->protect(function ($class) use ($app) {
-    $attributes = array();
-
-    $reflect = new ReflectionClass($class);
-    $properties = $reflect->getProperties();
-    foreach ($properties as $property) {
-        $attribute = array();
-        $attribute['name'] = $property->getName();
-
-        $doc_comment = $property->getDocComment();
-        preg_match_all('/@JsonDB\((\w+)="(\w+)"\)/', $doc_comment, $matches);
-        if ($matches) {
-            foreach ($matches[1] as $i => $match) {
-                $attribute[$matches[1][$i]] = $matches[2][$i];
-            }
-        }
-
-        $attributes[] = $attribute;
-    }
-
-    return $attributes;
+$app['jsondb.getPropertiesAttributes'] = $app->protect(function ($class) use ($app) {
+    return $class::getPropertiesAttributes();
 });
 
 $app['jsondb.getEntitiesFromFile'] = $app->protect(function ($class_name, $file_path) use ($app) {
@@ -99,7 +80,7 @@ $app->get('/{file}/view', function($file) use($app) {
         $entities = $app['jsondb.getEntitiesFromFile']($class_name, $file_path);
     }
 
-    $attributes = $app['jsondb.getClassAttributes']($class_name);
+    $attributes = $app['jsondb.getPropertiesAttributes']($class_name);
 
     return $app['twig']->render('file_view.html', array(
         'current_file'  => $file,
@@ -117,7 +98,7 @@ $app->get('/{file}/edit', function($file) use($app) {
         $entities = $app['jsondb.getEntitiesFromFile']($class_name, $file_path);
     }
 
-    $attributes = $app['jsondb.getClassAttributes']($class_name);
+    $attributes = $app['jsondb.getPropertiesAttributes']($class_name);
 
     return $app['twig']->render('file_edit.html', array(
         'current_file'  => $file,
@@ -142,7 +123,7 @@ $app->post('/{file}/edit', function(Request $request, $file) use($app) {
     $entities   = array();
     $class_name = $app['jsondb.config']['database_files'][$file];
     $file_path  = $app['jsondb.getFilePath']($file);
-    $attributes = $app['jsondb.getClassAttributes']($class_name);
+    $attributes = $app['jsondb.getPropertiesAttributes']($class_name);
 
     if (isset($_POST['id'])) {
         foreach ($_POST['id'] as $id) {
@@ -171,7 +152,7 @@ $app->post('/{file}/edit', function(Request $request, $file) use($app) {
 
 $app->get('/{file}/api/add', function(Request $request, $file) use($app) {
     $file_path  = $app['jsondb.getFilePath']($file);
-    $attributes = $app['jsondb.getClassAttributes']($app['jsondb.config']['database_files'][$file]);
+    $attributes = $app['jsondb.getPropertiesAttributes']($app['jsondb.config']['database_files'][$file]);
 
     if ($file_path) {
         $file_data = file_get_contents($file_path);

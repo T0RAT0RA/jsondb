@@ -80,20 +80,29 @@ class Entity implements JsonSerializable {
         return null;
     }
 
-    private function getPropertiesAttributes() {
+    public static function getPropertiesAttributes() {
         $attributes = array();
 
-        $reflect = new ReflectionClass($this);
+        $reflect = new ReflectionClass(get_called_class());
         $properties = $reflect->getProperties();
+
         foreach ($properties as $property) {
             $attribute = array();
             $attribute['name'] = $property->getName();
 
             $doc_comment = $property->getDocComment();
-            preg_match_all('/@JsonDB\((\w+)="(\w+)"\)/', $doc_comment, $matches);
+            preg_match_all('/@JsonDB\\\([\w-]+)\(([\w-]+)?=?"([\w- ]+)"\)/', $doc_comment, $matches);
             if ($matches) {
                 foreach ($matches[1] as $i => $match) {
-                    $attribute[$matches[1][$i]] = $matches[2][$i];
+                    if ($matches[1][$i] == 'style') {
+                        //Array of styles
+                        if (!isset($attribute[$matches[1][$i]]) || !is_array($attribute[$matches[1][$i]])) {
+                            $attribute[$matches[1][$i]] = array();
+                        }
+                        $attribute[$matches[1][$i]][] = $matches[2][$i].': '.$matches[3][$i].';';
+                    } else {
+                        $attribute[$matches[1][$i]] = $matches[3][$i];
+                    }
                 }
             }
 

@@ -12,12 +12,18 @@
             <thead>
                 <tr>
                     {% for attribute in attributes %}
-                        <th class="{{ attribute.name }}">{{ attribute.name }}</th>
+                        <th class="{{ attribute.name }}
+                            {% if attribute.class is defined %}
+                                {{ attribute.class }}
+                            {% endif %}
+                            "
+                            {% if attribute.style is defined %}
+                              style="{{ attribute.style|join|raw }}"
+                            {% endif %}
+                        >
+                            {{ attribute.name }}
+                        </th>
                     {% endfor %}
-                    <!--
-                      <th style="width: 130px;">Date</th>
-                      <th style="width: 100px;">RM</th>
-                    -->
                 </tr>
             </thead>
             <tbody>
@@ -28,18 +34,6 @@
                                 {{ entity.render(attribute.name)|raw }}
                             </td>
                         {% endfor %}
-                        {#
-                        <td>{{ row.date|date("Y-m-d H:i:s") }}</td>
-                        <td>{{ row.release_manager }}</td>
-                        <td class="{{ row.trunk? "" : "danger" }}">{{ row.trunk }}</td>
-                        <td>{{ row.release_candidate }}</td>
-                        <td>{{ row.release }}</td>
-                        <td>{{ row.commiter }}</td>
-                        <td>{{ row.deployement }}</td>
-                        <td class="env {{ row.staging? "success" : "active" }}">{{ row.staging? "X" : "-" }}</td>
-                        <td class="env {{ row.prod? "success" : "active" }}">{{ row.prod? "X" : "-" }}</td>
-                        <td>{{ row.file }}</td>
-                        #}
                     </tr>
                 {% endfor %}
             </tbody>
