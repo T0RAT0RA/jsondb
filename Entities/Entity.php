@@ -94,15 +94,7 @@ class Entity implements JsonSerializable {
             preg_match_all('/@JsonDB\\\([\w-]+)\(([\w-]+)?=?"([\w- ]+)"\)/', $doc_comment, $matches);
             if ($matches) {
                 foreach ($matches[1] as $i => $match) {
-                    if ($matches[1][$i] == 'style') {
-                        //Array of styles
-                        if (!isset($attribute[$matches[1][$i]]) || !is_array($attribute[$matches[1][$i]])) {
-                            $attribute[$matches[1][$i]] = array();
-                        }
-                        $attribute[$matches[1][$i]][] = $matches[2][$i].': '.$matches[3][$i].';';
-                    } else {
-                        $attribute[$matches[1][$i]] = $matches[3][$i];
-                    }
+                    $attribute[$matches[1][$i]] = $matches[3][$i];
                 }
             }
 
@@ -113,6 +105,15 @@ class Entity implements JsonSerializable {
     }
 
     public function jsonSerialize () {
-        return get_object_vars($this);
+        $properties = $this->getPropertiesAttributes();
+        $data       = array();
+
+        foreach ($properties as $property) {
+            #Do not store hidden attributes
+            if (isset($property['type']) && $property['type'] == 'hidden') { continue; }
+            $data[$property['name']] = $this->{$property['name']};
+        }
+
+        return $data;
     }
 }

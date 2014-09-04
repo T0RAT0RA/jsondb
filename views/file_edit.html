@@ -14,6 +14,8 @@
                     {% for attribute in attributes %}
                         <th class="{{ attribute.name }}">{{ attribute.name }}</th>
                     {% endfor %}
+                    {# Used for tool links #}
+                    <th></th>
                 </tr>
             </thead>
             <tbody>
@@ -21,9 +23,6 @@
                     <tr>
                         {% for attribute in attributes %}
                             <td class="{{ attribute.name }}">
-                                {% if loop.first %}
-                                    <input type="hidden" name="id[{{ loop.parent.loop.index }}]" value="{{ loop.parent.loop.index }}"/>
-                                {% endif %}
                                 {% if attribute.type is defined %}
                                     {% if attribute.type == "date"  %}
                                         <input type="text" name="{{attribute.name}}[{{ loop.parent.loop.index }}]" value="{{ entity.get(attribute.name) }}" size="25"/>
@@ -35,6 +34,10 @@
                                 {% endif %}
                             </td>
                         {% endfor %}
+                        <td>
+                            <input type="hidden" name="id[{{ loop.index }}]" value="{{ loop.index }}"/>
+                            <a href="#" class="delete-row"><span class="glyphicon glyphicon-remove red"></span></a>
+                        </td>
                     </tr>
                 {% endfor %}
             </tbody>
@@ -66,6 +69,15 @@
             } else {
                 this.parentNode.classList.add("danger");
             }
+        };
+    }
+    var deletes = document.querySelectorAll("td .delete-row");
+    for (i in deletes) {
+        delete_link = deletes[i];
+        delete_link.onclick = function() {
+            if (!confirm("Are you sure you want to delete this row?")) { return false; }
+            this.parentNode.parentNode.remove(this.parentNode);
+            return false;
         };
     }
 </script>

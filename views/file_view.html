@@ -1,26 +1,15 @@
 {% extends "layout.html" %}
+{% import _self as macro %}
 
 {% block content %}
     <div class="deployements">
-        <div class="pull-right">
-                <a href="{{ path('file_edit', {'file': current_file}) }}" class="btn btn-sm btn-primary">
-                    <span class="glyphicon glyphicon-pencil"></span> Edit
-                </a>
-        </div>
+        {{ macro.renderToolbar(current_file) }}
 
         <table class="table table-hover">
             <thead>
                 <tr>
                     {% for attribute in attributes %}
-                        <th class="{{ attribute.name }}
-                            {% if attribute.class is defined %}
-                                {{ attribute.class }}
-                            {% endif %}
-                            "
-                            {% if attribute.style is defined %}
-                              style="{{ attribute.style|join|raw }}"
-                            {% endif %}
-                        >
+                        <th class="{{ attribute.name }}">
                             {{ attribute.name }}
                         </th>
                     {% endfor %}
@@ -38,5 +27,18 @@
                 {% endfor %}
             </tbody>
         </table>
+
+        {{ macro.renderToolbar(current_file) }}
     </div>
 {% endblock %}
+
+{% macro renderToolbar(current_file) %}
+    <div class="pull-right">
+            <a href="{{ path('file_edit', {'file': current_file}) }}" class="btn btn-sm btn-primary">
+                <span class="glyphicon glyphicon-pencil"></span> Edit
+            </a>
+            <a href="{{ path('file_download', {'file': current_file}) }}" class="btn btn-sm btn-default">
+                <span class="glyphicon glyphicon-download-alt"></span> Download
+            </a>
+    </div>
+{% endmacro %}
